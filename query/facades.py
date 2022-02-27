@@ -14,6 +14,5 @@ class QueryFacade:
             if field not in self.json_data:
                 raise Exception(f"Field '{field}' not found in '{json.dumps(self.json_data)}'")
 
-
         return dict(id=self.json_data["id"],
                     title=self.json_data["title"])

@@ -1,7 +1,3 @@
-
-
-import re
-from query.services import JsonPlaceholderService
 from .services import JsonPlaceholderService
 from .facades import QueryFacade
 
