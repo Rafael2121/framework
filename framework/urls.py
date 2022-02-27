@@ -15,8 +15,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from authentication.views import create_auth
 
 urlpatterns = [
+    path('token-auth', create_auth),
     path('', include('query.urls')),
     path('admin/', admin.site.urls),
 ]
