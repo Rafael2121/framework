@@ -1,16 +1,22 @@
-from http import client
-from unittest import skip
-from unittest.mock import MagicMock
+import json
 from django.test import TestCase
-from .services import JsonPlaceholderService
-from .connection import JsonPlaceholderConnection
-from .repository import QueryRepository
-from .facades import QueryFacade
+from unittest.mock import MagicMock, patch
+from query.services import JsonPlaceholderService
+from query.repository import QueryRepository
+from query.facades import QueryFacade
+
+
+def read_mock():
+    with open("query/tests/response_mock.json") as fileContent:
+        return json.load(fileContent)
 
 
 class RepositoryTestCase(TestCase):
 
-    def test_fetch_should_have_five_results(self):
+    @patch("query.connection.JsonPlaceholderConnection.get")
+    def test_fetch_should_have_five_results(self, mock_get):
+        mock_get.return_value = read_mock()
+        
         repository = QueryRepository()
 
         result = repository.fetch()
@@ -19,7 +25,10 @@ class RepositoryTestCase(TestCase):
 
         self.assertEqual(expected, len(result))
 
-    def test_fetch_should_return_correct_data_format(self):
+    @patch("query.connection.JsonPlaceholderConnection.get")
+    def test_fetch_should_return_correct_data_format(self, mock_get):
+        mock_get.return_value = read_mock()
+
         repository = QueryRepository()
 
         result = repository.fetch()
@@ -37,7 +46,7 @@ class RepositoryTestCase(TestCase):
         repository.service = MagicMock(get=MagicMock(return_value=[]))
 
         with self.assertRaises(Exception):
-            result = repository.fetch()
+            repository.fetch()
 
 
 class FacadeTestCase(TestCase):
@@ -72,25 +81,16 @@ class FacadeTestCase(TestCase):
             result = facade.parse()
 
 
+@patch("query.connection.JsonPlaceholderConnection.get")
 class ServiceTestCase(TestCase):
 
     def setUp(self) -> None:
         self.service = JsonPlaceholderService()
 
-    def test_fetch_all(self):
+    def test_fetch_all(self, mock_get):
+
+        mock_get.return_value = read_mock()
 
         result = self.service.fetch_all()
 
-        self.assertTrue(result)
-
-
-class ConnectionTestCase(TestCase):
-
-    def setUp(self) -> None:
-        self.conn = JsonPlaceholderConnection()
-
-    def test_get_result_should_be_a_list(self):
-        result = self.conn.get("todos")
-
         self.assertEqual(list, type(result))
-
